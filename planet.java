@@ -1,7 +1,7 @@
 import java.awt.*;
 
 public class planet {
-    private final double timeStep = 86400; // 1 day
+    private final double timeStep = 86400/2; // 1 day
     private final double G = 6.6743e-11; // gravitational field constant
     private static final double AU = 1.496e8 * 1000; // in m
     private final double scale = 100/AU; // 1AU = 10 pixels
@@ -32,7 +32,7 @@ public class planet {
 
     public void draw(){
         StdDraw.setPenColor(color);
-        StdDraw.filledCircle(x*scale,y*scale, 10); // only do scaling at end since we use actual radius for calc.
+        StdDraw.filledCircle(x*scale,y*scale, Math.log(r)); // only do scaling at end since we use actual radius for calc.
         StdDraw.setPenColor(); // reset after drawing
     }
 
@@ -53,10 +53,11 @@ public class planet {
     }
 
     public static void main(String[] args) {
-        StdDraw.setCanvasSize(800,800);
-        StdDraw.setScale(-400, 400); // so that centre is at 0,0
+        StdDraw.setCanvasSize(400,400);
+        StdDraw.setScale(-200, 200); // so that centre is at 0,0
         StdDraw.enableDoubleBuffering();
-        planet earth = new planet(5.972 * 10e24,-0.9832899*AU,0,0,29.29e3,6371, false, Color.blue ); // set at perihelion speed
+        planet earth = new planet(5.972 * 10e24,-0.9832899*AU,0,0,29.783 * 1000,6371, false, Color.blue ); // set at perihelion speed
+        planet mercury = new planet(0.33010 * 10e24,0.387*AU,0,0,-47.4 * 1000,2439.7, false, Color.orange);
         planet sun = new planet (1.989e30,0,0,0,0,696340e3, true, Color.yellow); // sun at centre of solar system
 
 //        earth.accelerate(sun);
@@ -68,14 +69,19 @@ public class planet {
         for (double t = 0.0; true; t += 0.02) {
             StdDraw.clear(); // clear off-screen canvas
             earth.accelerate(sun);
+            earth.accelerate(mercury);
             earth.move(); // update positions
             sun.accelerate(earth);
+            sun.accelerate(mercury);
             sun.move();
+            mercury.accelerate(sun);
+            mercury.accelerate(earth);
+            mercury.move();
             earth.draw(); // draw on off-screen canvas
-            earth.draw();
+            mercury.draw();
             sun.draw();
             StdDraw.show(); // copy to on-screen canvas and display
-            StdDraw.pause(0); // slight delay for animation speed
+            StdDraw.pause(20); // slight delay for animation speed
         }
 
     }
