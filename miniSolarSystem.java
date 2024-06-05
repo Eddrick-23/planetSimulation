@@ -16,7 +16,7 @@ public class miniSolarSystem {
         celestialBodies.add(b);
     }
 
-    private void updateAllPositions(){
+    public void updateAllPositions(){
         for (int i = 0; i < celestialBodies.size(); i++){ // loop through all bodies
             planet A = celestialBodies.get(i);
             for (int j = i+1; j < celestialBodies.size(); j++){
@@ -30,8 +30,8 @@ public class miniSolarSystem {
     }
 
     private void drawAll(){
-        for (planet p : celestialBodies){
-            p.draw(); // draw on off-screen canvas
+        for (planet p:celestialBodies){
+            p.draw();
         }
     }
 
@@ -43,7 +43,7 @@ public class miniSolarSystem {
         StdDraw.enableDoubleBuffering();
 
 
-        for (int i = 0; true; i++){
+        for (double i = 0.0; true; i+= 0.01){
             StdDraw.clear();
             updateAllPositions();
             drawAll();
@@ -60,15 +60,15 @@ public class miniSolarSystem {
         planet venus = new planet("Venus",4.8685 * 10e24,0.723*AU,0,0,-35.02 * 1000,6051.8,false, Color.pink);
         planet sun = new planet ("Sun",1.989e30,0,0,0,0,696340e3, true, Color.yellow); // sun at centre of solar system
 
-        miniSolarSystem solarSystem = new miniSolarSystem(600,600);
+        miniSolarSystem solarSystem = new miniSolarSystem(400,400);
+        solarSystem.addBody(sun); // add bodies
         solarSystem.addBody(earth);
         solarSystem.addBody(mars);
         solarSystem.addBody(mercury);
         solarSystem.addBody(venus);
-        solarSystem.addBody(sun); // add bodies
-
         // animate
         solarSystem.animate();
+
 
     }
 }

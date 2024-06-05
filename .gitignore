@@ -4,7 +4,9 @@
 # IntelliJ project files
 .idea
 *.iml
+.class
 out
 gen
 !/draw.class
 !/planet.class
+!/miniSolarSystem.class
