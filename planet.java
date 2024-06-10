@@ -5,7 +5,6 @@ import java.math.MathContext;
 public class planet {
     private final Font font = new Font("Arial", Font.BOLD,10);
     public final String name;
-    private final double timeStep = 86400/16; // 1 day
     private final double G = 6.6743e-11; // gravitational field constant
     private static final double AU = 1.496e8 * 1000; // in m
     public final double scale = 100/AU; // 1AU = 10 pixel, scale for coordinates
@@ -32,7 +31,7 @@ public class planet {
         color = c;
     }
 
-    public void move(){ // move the planet based on its velocities
+    public void move(double timeStep){ // move the planet based on its velocities
         x = x + vX*timeStep;
         y = y + vY*timeStep;
     }
@@ -58,6 +57,7 @@ public class planet {
 
     public void displayInfo(double width, double height){
         StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.setFont(font);
         StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 30, "Name: " + name);
         StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 60, "Position: (" + rounder(x) + ", " + rounder(y) + ")");
         StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 90, "Velocity: (" + rounder(vX) + ", " + rounder(vY) + ")");
@@ -85,7 +85,7 @@ public class planet {
         vY += aY*timeStep;
     }
 
-    public void accelerate(planet other){ //accelerates the bodies due to gravity
+    public void accelerate(planet other, double timeStep){ //accelerates the bodies due to gravity
 
         if (!this.equals(other)) { // only update if planets are not identical
             double rSquared = (this.x - other.x) * (this.x - other.x) + (this.y - other.y) * (this.y - other.y);
@@ -108,7 +108,7 @@ public class planet {
         planet earth = new planet("Earth",5.972 * 10e24,-0.9832899*AU,0,0,29.783 * 1000,6371, false, Color.blue ); // set at perihelion speed
         planet mercury = new planet("Mercury",0.33010 * 10e24,0.387*AU,0,0,-47.4 * 1000,2439.7, false, Color.orange);
         planet sun = new planet ("Sun",1.989e30,0,0,0,0,696340e3, true, Color.yellow); // sun at centre of solar system
-
+        double timeStep = 86400;
 //        earth.accelerate(sun);
 //        sun.accelerate(earth);
 //
@@ -117,15 +117,15 @@ public class planet {
 //        StdDraw.show();
         for (double t = 0.0; true; t += 0.02) {
             StdDraw.clear(); // clear off-screen canvas
-            earth.accelerate(sun);
-            earth.accelerate(mercury);
-            earth.move(); // update positions
-            sun.accelerate(earth);
-            sun.accelerate(mercury);
-            sun.move();
-            mercury.accelerate(sun);
-            mercury.accelerate(earth);
-            mercury.move();
+            earth.accelerate(sun, timeStep);
+            earth.accelerate(mercury, timeStep);
+            earth.move(timeStep); // update positions
+            sun.accelerate(earth,timeStep);
+            sun.accelerate(mercury,timeStep);
+            sun.move(timeStep);
+            mercury.accelerate(sun,timeStep);
+            mercury.accelerate(earth,timeStep);
+            mercury.move(timeStep);
             earth.draw(true); // draw on off-screen canvas
             mercury.draw(true);
             sun.draw(true);
