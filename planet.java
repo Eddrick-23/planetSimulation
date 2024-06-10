@@ -5,7 +5,7 @@ import java.math.MathContext;
 public class planet {
     private final Font font = new Font("Arial", Font.BOLD,10);
     public final String name;
-    private final double timeStep = 86400/2; // 1 day
+    private final double timeStep = 86400/16; // 1 day
     private final double G = 6.6743e-11; // gravitational field constant
     private static final double AU = 1.496e8 * 1000; // in m
     public final double scale = 100/AU; // 1AU = 10 pixel, scale for coordinates
@@ -37,20 +37,44 @@ public class planet {
         y = y + vY*timeStep;
     }
 
-    private double getDistFromSun(){
-        double distFromSun = Math.sqrt(x*x + y*y)/10e3;
-        BigDecimal bd = new BigDecimal(distFromSun);
-        bd = bd.round(new MathContext(4)); // round to 5s.f.
+    private double rounder(double input){
+        BigDecimal bd = new BigDecimal(input);
+        bd = bd.round(new MathContext(4));
         return bd.doubleValue();
     }
 
-    public void draw(){
+    private double getDistFromSun(){
+        double distFromSun = Math.sqrt(x*x + y*y)/10e3;
+        return rounder(distFromSun);
+    }
+
+    public boolean isMouseOver(double mX, double mY){ //checks whether mouse is hovering over planet, based on scaled planet coordinates
+        // x coord should be within [planetX - radius, planetX + radius]
+        // y coord should be within [planetY - radius, planetY + radius]
+
+        return (mX >= x*scale - scaledRadius && mX <= x*scale + scaledRadius &&
+                mY >= y*scale - scaledRadius && mY <= y*scale + scaledRadius);
+    }
+
+    public void displayInfo(double width, double height){
+        StdDraw.setPenColor(StdDraw.BLACK);
+        StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 30, "Name: " + name);
+        StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 60, "Position: (" + rounder(x) + ", " + rounder(y) + ")");
+        StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 90, "Velocity: (" + rounder(vX) + ", " + rounder(vY) + ")");
+        StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 120, "Mass: " + rounder(mass));
+        StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 150, "Radius: " + r);
+        if (!isStar){
+            StdDraw.textLeft(-width/2.0 + 20, height / 2.0 - 180, "Distance from star : " + getDistFromSun());
+        }
+    }
+
+    public void draw(boolean connectingLine){
         StdDraw.setPenColor(color);
         StdDraw.filledCircle(x*scale,y*scale, scaledRadius); // only do scaling at end since we use actual radius for calc.
         StdDraw.setPenColor();
         StdDraw.setFont(font);
         StdDraw.text(x*scale,y*scale+scaledRadius,name); // display the name above the planet
-        if (!isStar) {
+        if (!isStar && connectingLine) {
             StdDraw.line(x*scale, y*scale, 0, 0); // draw line connecting planet and sun
             StdDraw.text(x*scale, y*scale-scaledRadius, getDistFromSun()+"km");
         }
@@ -102,9 +126,9 @@ public class planet {
             mercury.accelerate(sun);
             mercury.accelerate(earth);
             mercury.move();
-            earth.draw(); // draw on off-screen canvas
-            mercury.draw();
-            sun.draw();
+            earth.draw(true); // draw on off-screen canvas
+            mercury.draw(true);
+            sun.draw(true);
             StdDraw.show(); // copy to on-screen canvas and display
             StdDraw.pause(15); // slight delay for animation speed
         }

@@ -29,15 +29,26 @@ public class miniSolarSystem {
 
     }
 
-    private void drawAll(){
+    private void drawAll(boolean connectingLine){
         for (planet p:celestialBodies){
-            p.draw();
+            p.draw(connectingLine);
         }
     }
 
+    private void displayInfoOnHover(){
+        double mX = StdDraw.mouseX();
+        double mY = StdDraw.mouseY();
+
+        for (planet p: celestialBodies){
+            if (p.isMouseOver(mX, mY)){
+                p.displayInfo(width, height);
+            }
+        }
+
+    }
 
 
-    public void animate(){
+    public void animate(boolean connectingLine){
         StdDraw.setCanvasSize(width,height);
         StdDraw.setScale((double) -width /2, (double) height /2); // so that centre is at 0,0
         StdDraw.enableDoubleBuffering();
@@ -46,9 +57,10 @@ public class miniSolarSystem {
         for (double i = 0.0; true; i+= 0.01){
             StdDraw.clear();
             updateAllPositions();
-            drawAll();
+            drawAll(connectingLine);
+            displayInfoOnHover();
             StdDraw.show();
-            StdDraw.pause(20);
+            StdDraw.pause(2);
         }
 
 
@@ -60,14 +72,14 @@ public class miniSolarSystem {
         planet venus = new planet("Venus",4.8685 * 10e24,0.723*AU,0,0,-35.02 * 1000,6051.8,false, Color.pink);
         planet sun = new planet ("Sun",1.989e30,0,0,0,0,696340e3, true, Color.yellow); // sun at centre of solar system
 
-        miniSolarSystem solarSystem = new miniSolarSystem(400,400);
+        miniSolarSystem solarSystem = new miniSolarSystem(500,500);
         solarSystem.addBody(sun); // add bodies
         solarSystem.addBody(earth);
         solarSystem.addBody(mars);
         solarSystem.addBody(mercury);
         solarSystem.addBody(venus);
         // animate
-        solarSystem.animate();
+        solarSystem.animate(false);
 
 
     }
