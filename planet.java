@@ -7,7 +7,7 @@ public class planet {
     public final String name;
     private final double G = 6.6743e-11; // gravitational field constant
     private static final double AU = 1.496e8 * 1000; // in m
-    public final double scale = 100/AU; // 1AU = 10 pixel, scale for coordinates
+    public final double scale = 30/AU; // 1AU = 50 pixel, scale for coordinates
     private final double mass;
     private double x; // in m
     private double y; // in m
@@ -47,12 +47,15 @@ public class planet {
         return rounder(distFromSun);
     }
 
-    public boolean isMouseOver(double mX, double mY){ //checks whether mouse is hovering over planet, based on scaled planet coordinates
+    public boolean isMouseOver(double mX, double mY, int pixelLimit){ //checks whether mouse is hovering over planet, based on scaled planet coordinates
         // x coord should be within [planetX - radius, planetX + radius]
         // y coord should be within [planetY - radius, planetY + radius]
 
-        return (mX >= x*scale - scaledRadius && mX <= x*scale + scaledRadius &&
-                mY >= y*scale - scaledRadius && mY <= y*scale + scaledRadius);
+        double xPos = scaleCoords(x*scale, pixelLimit);
+        double yPos = scaleCoords(y*scale, pixelLimit);
+
+        return (mX >= xPos - scaledRadius && mX <= xPos + scaledRadius &&
+                mY >= yPos - scaledRadius && mY <= yPos + scaledRadius);
     }
 
     public void displayInfo(double width, double height){
@@ -68,15 +71,24 @@ public class planet {
         }
     }
 
-    public void draw(boolean connectingLine){
+    private double scaleCoords(double n, int pixelLimit){
+        // -0.002 is the rate, reduce to make the scaling more linear until the extreme values
+        double b = pixelLimit * Math.signum(n) * (1 - Math.exp(-0.002 * Math.abs(n)));
+        return b;
+
+    }
+
+    public void draw(boolean connectingLine, int pixelLimit){
+        double xPos = scaleCoords(x*scale , pixelLimit);
+        double yPos = scaleCoords(y*scale, pixelLimit);
         StdDraw.setPenColor(color);
-        StdDraw.filledCircle(x*scale,y*scale, scaledRadius); // only do scaling at end since we use actual radius for calc.
+        StdDraw.filledCircle(xPos,yPos, scaledRadius); // only do scaling at end since we use actual radius for calc.
         StdDraw.setPenColor();
         StdDraw.setFont(font);
-        StdDraw.text(x*scale,y*scale+scaledRadius,name); // display the name above the planet
+        StdDraw.text(xPos,yPos+scaledRadius,name); // display the name above the planet
         if (!isStar && connectingLine) {
-            StdDraw.line(x*scale, y*scale, 0, 0); // draw line connecting planet and sun
-            StdDraw.text(x*scale, y*scale-scaledRadius, getDistFromSun()+"km");
+            StdDraw.line(xPos, yPos, 0, 0); // draw line connecting planet and sun
+            StdDraw.text(xPos, yPos-scaledRadius, getDistFromSun()+"km");
         }
     }
 
@@ -99,7 +111,11 @@ public class planet {
         }
 
     }
-
+//    public synchronized void acceleratev2(ArrayList<planet> others,double timeStep){
+//        for (planet p: others){
+//            if (!this.equals(p)) accelerate(p, timeStep);
+//        }
+//    }
 
     public static void main(String[] args) {
         StdDraw.setCanvasSize(500,500);
@@ -109,29 +125,6 @@ public class planet {
         planet mercury = new planet("Mercury",0.33010 * 10e24,0.387*AU,0,0,-47.4 * 1000,2439.7, false, Color.orange);
         planet sun = new planet ("Sun",1.989e30,0,0,0,0,696340e3, true, Color.yellow); // sun at centre of solar system
         double timeStep = 86400;
-//        earth.accelerate(sun);
-//        sun.accelerate(earth);
-//
-//        earth.draw();
-//        sun.draw();
-//        StdDraw.show();
-        for (double t = 0.0; true; t += 0.02) {
-            StdDraw.clear(); // clear off-screen canvas
-            earth.accelerate(sun, timeStep);
-            earth.accelerate(mercury, timeStep);
-            earth.move(timeStep); // update positions
-            sun.accelerate(earth,timeStep);
-            sun.accelerate(mercury,timeStep);
-            sun.move(timeStep);
-            mercury.accelerate(sun,timeStep);
-            mercury.accelerate(earth,timeStep);
-            mercury.move(timeStep);
-            earth.draw(true); // draw on off-screen canvas
-            mercury.draw(true);
-            sun.draw(true);
-            StdDraw.show(); // copy to on-screen canvas and display
-            StdDraw.pause(15); // slight delay for animation speed
-        }
 
     }
 }

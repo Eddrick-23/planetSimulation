@@ -1,18 +1,18 @@
 import java.awt.*;
 import java.util.ArrayList;
 
-public class miniSolarSystem {
-    private static final double AU = 1.496e8 * 1000; // in m
+public class Simulator {
+    public static final double AU = 1.496e8 * 1000; // in m
     private ArrayList<planet> celestialBodies = new ArrayList<>();
     int width;
     int height;
     private final double timeStep;
     double timeElapsed = 0.0;
 
-    public miniSolarSystem(int w, int h, double ts){
+    public Simulator(int w, int h, double ts){
         width = w;
         height = h;
-        timeStep = ts; 
+        timeStep = ts;
     }
 
     public void addBody(planet b){
@@ -32,18 +32,18 @@ public class miniSolarSystem {
 
     }
 
-    private void drawAll(boolean connectingLine){
+    private void drawAll(boolean connectingLine, int pixelLimit){
         for (planet p:celestialBodies){
-            p.draw(connectingLine);
+            p.draw(connectingLine, pixelLimit);
         }
     }
 
-    private void displayInfoOnHover(){
+    private void displayInfoOnHover(int pixelLimit){
         double mX = StdDraw.mouseX();
         double mY = StdDraw.mouseY();
 
         for (planet p: celestialBodies){
-            if (p.isMouseOver(mX, mY)){
+            if (p.isMouseOver(mX, mY, pixelLimit)){
                 p.displayInfo(width, height);
             }
         }
@@ -56,7 +56,7 @@ public class miniSolarSystem {
         StdDraw.text(0, height/2.0 - 20, "Elapsed Time(Earth Days): " + Math.round(timeElapsed));
         timeElapsed += timeStep/86400;
     }
-    public void animate(boolean connectingLine){
+    public void animate(boolean connectingLine, int pixelLimit){
         StdDraw.setCanvasSize(width,height);
         StdDraw.setScale((double) -width /2, (double) height /2); // so that centre is at 0,0
         StdDraw.enableDoubleBuffering();
@@ -65,13 +65,21 @@ public class miniSolarSystem {
         for (double i = 0.0; true; i+= 0.01){
             StdDraw.clear();
             updateAllPositions(timeStep);
-            drawAll(connectingLine);
+            drawAll(connectingLine, pixelLimit);
             displayElapsedTime();
-            displayInfoOnHover();
+            displayInfoOnHover(pixelLimit);
             StdDraw.show();
             StdDraw.pause(0);
         }
-
+//        while (timeElapsed <= 365.0){ // For Benchmarking
+//            StdDraw.clear();
+//            updateAllPositions(timeStep);
+//            drawAll(connectingLine);
+//            displayElapsedTime();
+//            displayInfoOnHover();
+//            StdDraw.show();
+//            StdDraw.pause(0);
+//        }
 
     }
     public static void main(String[] args) {
@@ -81,14 +89,19 @@ public class miniSolarSystem {
         planet venus = new planet("Venus",4.8685 * 10e24,0.723*AU,0,0,-35.02 * 1000,6051.8,false, Color.pink);
         planet sun = new planet ("Sun",1.989e30,0,0,0,0,696340e3, true, Color.yellow); // sun at centre of solar system
 
-        miniSolarSystem solarSystem = new miniSolarSystem(500,500, 86400/32);
+        Simulator solarSystem = new Simulator(500,500, 86400/32);
         solarSystem.addBody(sun); // add bodies
         solarSystem.addBody(earth);
         solarSystem.addBody(mars);
         solarSystem.addBody(mercury);
         solarSystem.addBody(venus);
         // animate
-        solarSystem.animate(false);
+        long startTime = System.nanoTime();
+        solarSystem.animate(false, 1500);
+        long endTime = System.nanoTime();
+        long timeTaken = Math.round((endTime-startTime)/1e9);
+        System.out.println("time for 365 days simulation: " + timeTaken + "s");
+
 
 
     }
