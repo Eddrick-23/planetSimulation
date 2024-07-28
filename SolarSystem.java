@@ -14,7 +14,7 @@ public class SolarSystem {
 
 
 
-        Simulator solarSystem = new Simulator(700,700, 86400*5);
+        Simulator solarSystem = new Simulator(700,700, 86400*2);
         solarSystem.addBody(sun); // add bodies
         solarSystem.addBody(earth);
         solarSystem.addBody(mars);
