@@ -1,6 +1,7 @@
 import java.awt.*;
 import java.math.BigDecimal;
 import java.math.MathContext;
+import java.util.*;
 
 public class planet {
     private final Font font = new Font("Arial", Font.BOLD,10);
@@ -111,11 +112,12 @@ public class planet {
         }
 
     }
-//    public synchronized void acceleratev2(ArrayList<planet> others,double timeStep){
-//        for (planet p: others){
-//            if (!this.equals(p)) accelerate(p, timeStep);
-//        }
-//    }
+    public synchronized void acceleratev2(ArrayList<planet> others, double timeStep){
+        // uses instance variables to calculate
+        for (planet p: others){
+            if (!this.equals(p)) accelerate(p, timeStep);
+        }
+    }
 
     public static void main(String[] args) {
         StdDraw.setCanvasSize(500,500);

@@ -3,10 +3,10 @@ import java.util.ArrayList;
 
 public class Simulator {
     public static final double AU = 1.496e8 * 1000; // in m
-    private ArrayList<planet> celestialBodies = new ArrayList<>();
+    public ArrayList<planet> celestialBodies = new ArrayList<>();
     int width;
     int height;
-    private final double timeStep;
+    public final double timeStep;
     double timeElapsed = 0.0;
 
     public Simulator(int w, int h, double ts){
@@ -19,7 +19,7 @@ public class Simulator {
         celestialBodies.add(b);
     }
 
-    private void updateAllPositions(double timeStep){
+    public void updateAllPositions(double timeStep){
         for (int i = 0; i < celestialBodies.size(); i++){ // loop through all bodies
             planet A = celestialBodies.get(i);
             for (int j = i+1; j < celestialBodies.size(); j++){
@@ -56,32 +56,36 @@ public class Simulator {
         StdDraw.text(0, height/2.0 - 20, "Elapsed Time(Earth Days): " + Math.round(timeElapsed));
         timeElapsed += timeStep/86400;
     }
-    public void animate(boolean connectingLine, int pixelLimit){
+    public void animate(boolean connectingLine, int pixelLimit, boolean benchmark){
         StdDraw.setCanvasSize(width,height);
         StdDraw.setScale((double) -width /2, (double) height /2); // so that centre is at 0,0
         StdDraw.enableDoubleBuffering();
 
-
-        for (double i = 0.0; true; i+= 0.01){
-            StdDraw.clear();
-            updateAllPositions(timeStep);
-            drawAll(connectingLine, pixelLimit);
-            displayElapsedTime();
-            displayInfoOnHover(pixelLimit);
-            StdDraw.show();
-            StdDraw.pause(0);
+        if (!benchmark) {
+            for (double i = 0.0; true; i += 0.01) {
+                StdDraw.clear();
+                updateAllPositions(timeStep);
+                drawAll(connectingLine, pixelLimit);
+                displayElapsedTime();
+                displayInfoOnHover(pixelLimit);
+                StdDraw.show();
+                StdDraw.pause(0);
+            }
         }
-//        while (timeElapsed <= 365.0){ // For Benchmarking
-//            StdDraw.clear();
-//            updateAllPositions(timeStep);
-//            drawAll(connectingLine);
-//            displayElapsedTime();
-//            displayInfoOnHover();
-//            StdDraw.show();
-//            StdDraw.pause(0);
-//        }
+        else {
+            while (timeElapsed <= 10000) { // For Benchmarking
+                StdDraw.clear();
+                updateAllPositions(timeStep);
+                drawAll(connectingLine, pixelLimit);
+                displayElapsedTime();
+                displayInfoOnHover(pixelLimit);
+                StdDraw.show();
+                StdDraw.pause(0);
+            }
+        }
 
     }
+
     public static void main(String[] args) {
         planet earth = new planet("Earth",5.972 * 10e24,-0.9832899*AU,0,0,29.783 * 1000,6371, false, Color.blue ); // set at perihelion speed
         planet mercury = new planet("Mercury",0.33010 * 10e24,0.387*AU,0,0,-47.4 * 1000,2439.7, false, Color.orange);
@@ -97,7 +101,7 @@ public class Simulator {
         solarSystem.addBody(venus);
         // animate
         long startTime = System.nanoTime();
-        solarSystem.animate(false, 1500);
+        solarSystem.animate(false, 1500, true);
         long endTime = System.nanoTime();
         long timeTaken = Math.round((endTime-startTime)/1e9);
         System.out.println("time for 365 days simulation: " + timeTaken + "s");
